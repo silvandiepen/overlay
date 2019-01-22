@@ -72,6 +72,7 @@
       <div class="overlay__frame">
         <iframe
           :src="source"
+          scrolling="no"
           class="overlay__iframe"
         ></iframe>
         <div
@@ -296,6 +297,10 @@ export default {
     padding: 1rem;
     opacity: var(--tools-opacity, 1);
     border-radius: 0.5rem;
+    transition: opacity 0.3s;
+    &:hover {
+      opacity: 1;
+    }
     input {
       outline: none !important;
     }
@@ -308,7 +313,8 @@ export default {
         color: color(White, 0.25);
       }
       select,
-      input {
+      input,
+      input[type="text"] {
         background-color: transparent;
         color: white;
         border: 1px solid color(White, 0.2);
