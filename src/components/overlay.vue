@@ -11,7 +11,9 @@
           id="source"
           v-model="source"
           type="text"
-        /></div>
+        />
+        <span class="error" v-show="source.indexOf('http://') > -1">Unfortunately, this doesn't work with http website, please provide a secure https url.</span>  
+      </div>
       <div class="input-field">
         <label for="size">size</label>
         <select
@@ -111,7 +113,7 @@ export default {
   },
   data() {
     return {
-      source: "http://localhost:8083",
+      source: "https://www.silvandiepen.nl",
       sizes: [
         { title: "Full HD", value: [1920, 1080] },
         { title: "Desktop", value: [1440, 900] },
@@ -139,11 +141,6 @@ export default {
     };
   },
   methods: {
-    setCurrentSize(e) {
-      /* eslint-disable */
-      console.log(e);
-      this.currentSize = size;
-    },
     changeFile(e) {
       const _this = this;
       if (!_this.isDropped) {
@@ -159,34 +156,12 @@ export default {
         _this.currentSize = [this.width, this.height];
       };
     },
-    updateSettings() {
-      let view = this.$refs.overlay;
-      // view.style.setProperty(
-      //   "--grid-width",
-      //   this.grid.width * this.grid.zoom + "px"
-      // );
-      // view.style.setProperty("--grid-og-width", this.grid.og_width + "px");
-      // view.style.setProperty(
-      //   "--grid-image-width",
-      //   this.grid.og_width * this.grid.zoom + "px"
-      // );
-      // view.style.setProperty("--grid-columns", this.grid.columns);
-      // view.style.setProperty("--grid-color", this.grid.color);
-      // view.style.setProperty("--grid-zoom", this.grid.zoom);
-      // view.style.setProperty(
-      //   "--grid-offset-left",
-      //   this.grid.offset_left * this.grid.zoom + "px"
-      // );
-    },
     uploadImage(file) {
       const _this = this;
       _this.url = URL.createObjectURL(file);
       _this.image.element = URL.createObjectURL(file);
       _this.blob = true;
       _this.getImageSize();
-      setTimeout(function() {
-        _this.updateSettings();
-      }, 100);
     },
     initDrag() {
       this.isDragging = true;
@@ -309,6 +284,7 @@ export default {
       margin-left: 1rem;
     }
     .input-field {
+      position: relative; 
       label {
         color: color(White, 0.25);
       }
@@ -318,6 +294,14 @@ export default {
         background-color: transparent;
         color: white;
         border: 1px solid color(White, 0.2);
+      }
+      .error{
+        position: absolute; 
+        background-color: color(Yellow);
+        top: 100%; left: 0; 
+        padding: .75rem; border-radius: 3px; 
+        font-size: 14px;
+        line-height: 1.25;
       }
     }
   }
