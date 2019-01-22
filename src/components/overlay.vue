@@ -12,7 +12,10 @@
           v-model="source"
           type="text"
         />
-        <span class="error" v-show="source.indexOf('http://') > -1">Unfortunately, this doesn't work with http website, please provide a secure https url.</span>  
+        <span
+          class="error"
+          v-show="source.indexOf('http://') > -1"
+        >Unfortunately, this doesn't work with http website, please provide a secure https url.</span>
       </div>
       <div class="input-field">
         <label for="size">size</label>
@@ -92,6 +95,7 @@
       class="overlay__dropzone"
       :class="{'is-dragging': isDragging, 'is-dropped': isDropped}"
     >
+      <label for="dropzone-input"></label>
       <input
         @dragover="initDrag"
         @dragenter="initDrag"
@@ -99,6 +103,7 @@
         @dragleave="stopDrag"
         @drop.prevent="dropFile"
         type="file"
+        id="dropzone-input"
         @change="changeFile"
       />
     </div>
@@ -242,17 +247,32 @@ export default {
     top: 50%;
     z-index: 100;
     display: block;
-    width: grid(2);
-    height: grid(2);
+    width: 6rem;
+    height: 6rem;
     border-radius: 50%;
     right: 1rem;
     background-color: color(Green);
+    background-image: linear-gradient(to right, white, white),
+      linear-gradient(to right, white, white);
+    background-size: 2px 1rem, 1rem 2px;
+    background-position: center center, center center;
+    background-repeat: no-repeat;
+    &:hover {
+      background-color: color(Blue);
+    }
+    &:active {
+      background-color: color(Yellow);
+    }
+    label {
+      width: 100%;
+      height: 100%;
+    }
     input {
       position: absolute;
       width: 100%;
       height: 100%;
       outline: none !important;
-      opacity: 0.1;
+      opacity: 0;
     }
     &.is-dragging {
       background-color: color(Yellow);
@@ -284,7 +304,7 @@ export default {
       margin-left: 1rem;
     }
     .input-field {
-      position: relative; 
+      position: relative;
       label {
         color: color(White, 0.25);
       }
@@ -295,11 +315,13 @@ export default {
         color: white;
         border: 1px solid color(White, 0.2);
       }
-      .error{
-        position: absolute; 
+      .error {
+        position: absolute;
         background-color: color(Yellow);
-        top: 100%; left: 0; 
-        padding: .75rem; border-radius: 3px; 
+        top: 100%;
+        left: 0;
+        padding: 0.75rem;
+        border-radius: 3px;
         font-size: 14px;
         line-height: 1.25;
       }
