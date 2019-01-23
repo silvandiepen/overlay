@@ -89,7 +89,7 @@
             @blur="setUrl"
             @keyup.enter="setUrl"
             type="text"
-            placeholder="Give an url"
+            placeholder="Give a url"
           />
         </div>
       </div>
