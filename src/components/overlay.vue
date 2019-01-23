@@ -30,11 +30,11 @@
         <label for="size">size</label>
         <select
           id="size"
-          v-model="currentSize"
+          v-model="current.size"
         >
           <option
             v-for="(size,index) in sizes"
-            :value="size.value"
+            :value="size"
             :key="index"
           >{{ size.title }}</option>
         </select>
@@ -43,7 +43,7 @@
         <label for="zoom">zoom</label>
         <select
           id="zoom"
-          v-model="currentZoom"
+          v-model="current.zoom"
         >
           <option value="25">25%</option>
           <option value="50">50%</option>
@@ -57,19 +57,27 @@
           <option value="200">200%</option>
         </select>
       </div>
-       <div class="input-field">
-        <label for="scaling">zoom</label>
+      <div class="input-field">
+        <label for="scaling">scaling</label>
         <select
           id="scaling"
-          v-model="currentScaling"
+          v-model="current.scaling"
         >
-          <option value="1" selected>1x</option>
+          <option
+            value="1"
+            selected
+          >1x</option>
           <option value="2">2x</option>
           <option value="3">3x</option>
         </select>
       </div>
-      <div class="input-field input-range" 
-          v-if="image.element">
+      
+      
+      
+      <div
+        class="input-field input-range"
+        v-if="image.url"
+      >
         <label for="overlay-opacity">overlay opacity</label>
         <input
           id="overlay-opacity"
@@ -80,9 +88,29 @@
           v-model="image.opacity"
         />
       </div>
+
+      <div
+        class="input-field input-switch"
+        v-if="image.url"
+      >
+        <input
+          id="overlay-show"
+          type="checkbox"
+          v-model="image.show"
+        />
+        <label for="overlay-show">show overlay</label>
+      </div>
+
+
+
     </div>
-    <div class="overlay__view">
-      <div class="overlay__nosource">
+    
+    
+    <div class="overlay__view" :class="{'has-no-source' : source.length < 1}">
+      <div
+        class="overlay__nosource"
+        v-show="source.length < 1"
+      >
         <div class="input-field">
           <input
             v-model="url"
@@ -104,10 +132,10 @@
         ></iframe>
         <div
           class="overlay__image"
-          v-if="image.element"
+          v-if="image.url && image.show"
         >
           <img
-            :src="image.element"
+            :src="image.url"
             alt="the image preview"
           />
         </div>
@@ -116,7 +144,9 @@
     <div
       class="overlay__dropzone"
       :class="{'is-dragging': isDragging, 'is-dropped': isDropped}"
+      :style="{ backgroundImage: 'url(' + image.url + ')' }"
     >
+
       <label for="dropzone-input"></label>
       <input
         @dragover="initDrag"
@@ -128,6 +158,13 @@
         id="dropzone-input"
         @change="changeFile"
       />
+      <div class="overlay__urloverlay">
+        <input
+          type="text"
+          v-model="image.url"
+          placeholder="Image url..."
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -140,38 +177,43 @@ export default {
   },
   data() {
     return {
+      isDragging: false,
+      isDropped: false,
       source: "",
       sizes: [
-        { title: "Full HD", value: [1920, 1080] },
-        { title: "Desktop", value: [1440, 900] },
-        { title: "iPad", value: [1024, 768] },
-        { title: "iPhone Xs Max", value: [768, 1024] }
+        { title: "Full HD", value: [1920, 1080], scaling: 1 },
+        { title: "Desktop", value: [1440, 900], scaling: 1 },
+        { title: "iPad", value: [1024, 768], scaling: 1 },
+        { title: "iPhone Xs Max", value: [1242, 2688], scaling: 3 },
+        { title: "iPhone Xs", value: [1125, 2436], scaling: 3 },
+        { title: "iPhone 8", value: [750, 1334], scaling: 2 },
+        { title: "iPhone 5", value: [640, 1136], scaling: 2 },
+        { title: "iPhone 4", value: [640, 960], scaling: 2 }
       ],
-      overlayImg: null,
-      rotated: false,
-      currentScaling: 1,
-      currentZoom: 100,
-      currentSize: [1024, 768],
+      current: {
+        scaling: 1,
+        zoom: 100,
+        size: null
+      },
       tools: {
         opacity: 10
       },
       url: null,
       urlError: {
-        https: false
+        https: false,
+        nohttps: false
       },
-      showImage: false,
-      offset_is_pristine: true,
-      blob: false,
-      isDragging: false,
-      isDropped: false,
       image: {
         file: null,
         width: 0,
-        opacity: 50
+        opacity: 5,
+        url: null,
+        show: true
       }
     };
   },
   methods: {
+    /* eslint-disable */
     changeFile(e) {
       const _this = this;
       if (!_this.isDropped) {
@@ -199,16 +241,36 @@ export default {
     getImageSize() {
       const _this = this;
       const img = new Image();
-      img.src = this.url;
+      img.src = this.image.url;
       img.onload = function() {
         _this.image.width = this.width;
-        _this.currentSize = [this.width, this.height];
+        _this.image.height = this.height;
+        _this.current.size = [this.width, this.height];
+        _this.checkScaling(_this.image);
       };
+    },
+    checkScaling(image) {
+      const _this = this;
+      this.sizes.forEach(size => {
+        console.log(
+          size.value[0],
+          image.width,
+          "/",
+          size.value[1],
+          image.height
+        );
+        if (size.value[0] === image.width && size.value[1] === image.height) {
+          console.log("I guess this is a " + size.title + " screen");
+          _this.current.size = size;
+          _this.current.scaling = size.scaling;
+          _this.setCustomProps();
+        }
+      });
     },
     uploadImage(file) {
       const _this = this;
-      _this.image.element = URL.createObjectURL(file);
-      _this.blob = true;
+      _this.image.url = URL.createObjectURL(file);
+      _this.image.url = URL.createObjectURL(file);
       _this.getImageSize();
     },
     initDrag() {
@@ -221,69 +283,61 @@ export default {
       this.isDragging = false;
       this.isDropped = true;
       this.uploadImage(e.dataTransfer.files[0]);
+    },
+    setCustomProp(prop, value, ref = "overlay") {
+      this.$refs[ref].style.setProperty(prop, value);
+    },
+    setCustomProps(type = null) {
+      if (type == "size" || type == null) {
+        this.setCustomProp(
+          "--frame-width",
+          this.current.size.value[0] / this.current.scaling + "px"
+        );
+        this.setCustomProp(
+          "--frame-height",
+          this.current.size.value[1] / this.current.scaling + "px"
+        );
+      }
+      if (type == "zoom" || type == null) {
+        this.setCustomProp("--frame-zoom", this.current.zoom / 100);
+      }
+      if (type == "scaling" || type == null) {
+        this.setCustomProp("--image-scaling", this.current.scaling);
+      }
+      if (type == "tools" || type == null) {
+        this.setCustomProp("--tools-opacity", this.tools.opacity / 10);
+      }
+      if (type == "image" || type == null) {
+        this.setCustomProp("--image-opacity", this.image.opacity / 10);
+      }
     }
   },
   watch: {
-    currentSize: {
-      handler: function() {
-        if (this.rotated) {
-          this.$refs.overlay.style.setProperty(
-            "--frame-width",
-            `${this.currentSize[1]}px`
-          );
-          this.$refs.overlay.style.setProperty(
-            "--frame-height",
-            `${this.currentSize[0]}px`
-          );
-        } else {
-          this.$refs.overlay.style.setProperty(
-            "--frame-width",
-            `${this.currentSize[0]}px`
-          );
-          this.$refs.overlay.style.setProperty(
-            "--frame-height",
-            `${this.currentSize[1]}px`
-          );
-        }
+    "current.size": function() {
+      if (this.source) {
+        this.setCustomProps("size");
       }
-      // immediate: true
     },
-    currentZoom: {
-      handler: function() {
-        this.$refs.overlay.style.setProperty(
-          "--frame-zoom",
-          this.currentZoom / 100
-        );
+    "current.zoom": function() {
+      if (this.source) {
+        this.setCustomProps("zoom");
       }
-      // immediate: true
     },
-    currentScaling: {
-      handler: function() {
-        this.$refs.overlay.style.setProperty(
-          "--image-scaling",
-          this.currentScaling
-        );
+    "current.scaling": function() {
+      if (this.source) {
+        this.setCustomProps("scaling");
       }
-      // immediate: true
     },
     tools: {
       handler: function() {
-        this.$refs.overlay.style.setProperty(
-          "--tools-opacity",
-          this.tools.opacity / 10
-        );
+        this.setCustomProps("tools");
       },
-      // immediate: true,
       deep: true
     },
     image: {
       handler: function() {
-        this.$refs.overlay.style.setProperty(
-          "--image-opacity",
-          this.image.opacity / 10
-        );
+        this.setCustomProps("image");
       },
-      // immediate: true,
       deep: true
     }
   }
@@ -293,24 +347,38 @@ export default {
 <style lang="scss">
 @import "~@sil/base-style/src/scss/index.full";
 .overlay {
+  position: relative;
   &__dropzone {
-    position: absolute;
-    right: 0;
+    position: fixed;
+    left: 0;
     top: 50%;
     z-index: 100;
     display: block;
     width: 6rem;
     height: 6rem;
-    border-radius: 50%;
-    right: 1rem;
+    margin-top: -3rem;
     background-color: color(Green);
-    background-image: linear-gradient(to right, white, white),
-      linear-gradient(to right, white, white);
-    background-size: 2px 1rem, 1rem 2px;
-    background-position: center center, center center;
-    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      background-image: linear-gradient(to right, white, white),
+        linear-gradient(to right, white, white);
+      background-size: 2px 1rem, 1rem 2px;
+      background-position: center center, center center;
+      background-repeat: no-repeat;
+      pointer-events: none;
+    }
     &:hover {
       background-color: color(Blue);
+      .overlay__urloverlay {
+        clip-path: inset(0 0 0 0);
+      }
     }
     &:active {
       background-color: color(Yellow);
@@ -320,7 +388,7 @@ export default {
       height: 100%;
       display: block;
     }
-    input {
+    input[type="file"] {
       position: absolute;
       width: 100%;
       height: 100%;
@@ -344,7 +412,6 @@ export default {
     background-color: color(Black);
     padding: 1rem;
     opacity: var(--tools-opacity, 1);
-    border-radius: 0.5rem;
     transition: opacity 0.3s;
     &:hover {
       opacity: 1;
@@ -369,9 +436,15 @@ export default {
       }
       select,
       input[type="text"] {
-        background-color: transparent;
         color: white;
-        border: 1px solid color(White, 0.2);
+        border: none;
+        border-radius: 0;
+        background-color: color(White, 0.1);
+        min-width: 3rem;
+        &:focus {
+          background-color: color(Blue, 0.2);
+          border: none;
+        }
       }
       .notification,
       .warning,
@@ -400,13 +473,39 @@ export default {
       display: block;
     }
   }
+  &__urloverlay {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    height: 100%;
+    background-color: black;
+    padding: 2rem;
+
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.3s ease-in-out;
+    input[type="text"] {
+      line-height: 2rem;
+      font-size: 1rem;
+      color: white;
+      border: none;
+      border-radius: 0;
+      background: none;
+    }
+  }
   &__view {
     display: block;
     width: 100vw;
-    height: 100vh;
+    height: calc(var(--frame-height, 768px) + #{grid(8)});
     overflow: scroll;
-    background-color: color(Black, 0.25);
-    padding: grid(2) 0;
+    background-color: color(Black, 0.9);
+    padding: grid(4) 0;
+    @include min-(padding, 4, 160) {
+      padding: 160px 0;
+    }
+    &.has-no-source{
+      height: 100vh;
+      max-height: 100vh; 
+    }
   }
   &__nosource {
     .input-field {
@@ -416,9 +515,11 @@ export default {
       transform: translate(-50%, -50%);
       input[type="text"] {
         font-size: 2rem;
+        height: 6rem;
+        line-height: 2rem;
         padding: 2rem;
-        border-radius: 3.5rem;
         width: auto;
+      border-radius: 0;
         &:focus {
           outline: none;
         }
@@ -429,14 +530,9 @@ export default {
     position: relative;
     display: block;
     margin: auto;
-    width: calc(
-      (var(--frame-width, 1024px) * var(--frame-zoom, 1)) /
-        var(--image-scaling, 1)
-    );
-    height: calc(
-      (var(--frame-height, 768px) * var(--frame-zoom, 1)) /
-        var(--image-scaling, 1)
-    );
+    width: calc((var(--frame-width, 1024px) * var(--frame-zoom, 1)));
+    height: calc((var(--frame-height, 768px) * var(--frame-zoom, 1)));
+    transform: scale(var(--frame-zoom, 1) / var(--image-scaling, 1));
     transition: transform 0.3s, width 0.3s, height 0.3s;
   }
   &__iframe {
@@ -445,15 +541,14 @@ export default {
     height: 100%;
   }
   &__image {
-    width: 100%;
-    height: 100%;
+    width: calc((var(--frame-width, 1024px) * var(--frame-zoom, 1)));
+    height: calc((var(--frame-height, 768px) * var(--frame-zoom, 1)));
     position: absolute;
     left: 0;
     top: 0;
     outline: none !important;
     pointer-events: none;
-
-    transform: scale(var(--frame-zoom, 1));
+    transform: scale(var(--frame-zoom, 1) / var(--image-scaling, 1));
     opacity: var(--image-opacity, 0.5);
     img {
       width: 100%;
