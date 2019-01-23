@@ -71,9 +71,7 @@
           <option value="3">3x</option>
         </select>
       </div>
-      
-      
-      
+
       <div
         class="input-field input-range"
         v-if="image.url"
@@ -101,12 +99,12 @@
         <label for="overlay-show">show overlay</label>
       </div>
 
-
-
     </div>
-    
-    
-    <div class="overlay__view" :class="{'has-no-source' : source.length < 1}">
+
+    <div
+      class="overlay__view"
+      :class="{'has-no-source' : source.length < 1}"
+    >
       <div
         class="overlay__nosource"
         v-show="source.length < 1"
@@ -441,6 +439,10 @@ export default {
         border-radius: 0;
         background-color: color(White, 0.1);
         min-width: 3rem;
+        &:hover {
+          background-color: color(Green, 0.2);
+          border: none;
+        }
         &:focus {
           background-color: color(Blue, 0.2);
           border: none;
@@ -502,9 +504,9 @@ export default {
     @include min-(padding, 4, 160) {
       padding: 160px 0;
     }
-    &.has-no-source{
+    &.has-no-source {
       height: 100vh;
-      max-height: 100vh; 
+      max-height: 100vh;
     }
   }
   &__nosource {
@@ -519,7 +521,7 @@ export default {
         line-height: 2rem;
         padding: 2rem;
         width: auto;
-      border-radius: 0;
+        border-radius: 0;
         &:focus {
           outline: none;
         }
