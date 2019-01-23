@@ -4,18 +4,27 @@
     ref="overlay"
   >
 
-    <div class="overlay__tools">
+    <div
+      class="overlay__tools"
+      v-show="source.length > 0"
+    >
       <div class="input-field">
         <label for="source">Url</label>
         <input
           id="source"
-          v-model="source"
+          v-model="url"
+          @blur="setUrl"
+          @keyup.enter="setUrl"
           type="text"
         />
         <span
-          class="error"
-          v-show="source.indexOf('http://') > -1"
-        >Unfortunately, this doesn't work with http website, please provide a secure https url.</span>
+          class="warning"
+          v-show="urlError.http"
+        >Unfortunately, this doesn't work with http website, the link will get converted to https, this could not work if the website doesn't support https</span>
+        <span
+          class="notification"
+          v-show="urlError.nohttps"
+        >You didn't give https:// with your url. I added it, if you need a local url. This won't work (yet).</span>
       </div>
       <div class="input-field">
         <label for="size">size</label>
@@ -48,9 +57,20 @@
           <option value="200">200%</option>
         </select>
       </div>
-      <div class="input-field input-range">
+       <div class="input-field">
+        <label for="scaling">zoom</label>
+        <select
+          id="scaling"
+          v-model="currentScaling"
+        >
+          <option value="1" selected>1x</option>
+          <option value="2">2x</option>
+          <option value="3">3x</option>
+        </select>
+      </div>
+      <div class="input-field input-range" 
+          v-if="image.element">
         <label for="overlay-opacity">overlay opacity</label>
-
         <input
           id="overlay-opacity"
           type="range"
@@ -60,21 +80,23 @@
           v-model="image.opacity"
         />
       </div>
-      <div class="input-field input-range">
-        <label for="tools-opacity">tools opacity</label>
-        <input
-          id="tools-opacity"
-          type="range"
-          min="0"
-          max="10"
-          steps="1"
-          v-model="tools.opacity"
-        />
-      </div>
-
     </div>
     <div class="overlay__view">
-      <div class="overlay__frame">
+      <div class="overlay__nosource">
+        <div class="input-field">
+          <input
+            v-model="url"
+            @blur="setUrl"
+            @keyup.enter="setUrl"
+            type="text"
+            placeholder="Give an url"
+          />
+        </div>
+      </div>
+      <div
+        class="overlay__frame"
+        v-show="source.length > 0"
+      >
         <iframe
           :src="source"
           scrolling="no"
@@ -118,7 +140,7 @@ export default {
   },
   data() {
     return {
-      source: "https://www.silvandiepen.nl",
+      source: "",
       sizes: [
         { title: "Full HD", value: [1920, 1080] },
         { title: "Desktop", value: [1440, 900] },
@@ -127,12 +149,16 @@ export default {
       ],
       overlayImg: null,
       rotated: false,
+      currentScaling: 1,
       currentZoom: 100,
       currentSize: [1024, 768],
       tools: {
         opacity: 10
       },
       url: null,
+      urlError: {
+        https: false
+      },
       showImage: false,
       offset_is_pristine: true,
       blob: false,
@@ -152,6 +178,24 @@ export default {
         _this.uploadImage(e.srcElement.files[0]);
       }
     },
+    setError(error) {
+      const _this = this;
+      _this.urlError[error] = true;
+      setTimeout(() => {
+        _this.urlError[error] = false;
+      }, 1000);
+    },
+    setUrl() {
+      if (this.url.indexOf("https://") > -1) {
+        this.source = this.url + "";
+      } else if (this.url.indexOf("http://") > -1) {
+        this.setError("https");
+        this.source = this.url.replace("http://", "https://");
+      } else {
+        this.setError("nohttps");
+        this.source = "https://" + this.url;
+      }
+    },
     getImageSize() {
       const _this = this;
       const img = new Image();
@@ -163,7 +207,6 @@ export default {
     },
     uploadImage(file) {
       const _this = this;
-      _this.url = URL.createObjectURL(file);
       _this.image.element = URL.createObjectURL(file);
       _this.blob = true;
       _this.getImageSize();
@@ -210,6 +253,15 @@ export default {
         this.$refs.overlay.style.setProperty(
           "--frame-zoom",
           this.currentZoom / 100
+        );
+      }
+      // immediate: true
+    },
+    currentScaling: {
+      handler: function() {
+        this.$refs.overlay.style.setProperty(
+          "--image-scaling",
+          this.currentScaling
         );
       }
       // immediate: true
@@ -266,6 +318,7 @@ export default {
     label {
       width: 100%;
       height: 100%;
+      display: block;
     }
     input {
       position: absolute;
@@ -297,6 +350,7 @@ export default {
       opacity: 1;
     }
     input {
+      display: block;
       outline: none !important;
     }
     .input-field + .input-field {
@@ -306,15 +360,21 @@ export default {
     .input-field {
       position: relative;
       label {
-        color: color(White, 0.25);
+        display: block;
+        width: 100%;
+        color: color(White, 0.75);
+        padding: 0.5rem;
+        font-size: 14px;
+        font-weight: bold;
       }
       select,
-      input,
       input[type="text"] {
         background-color: transparent;
         color: white;
         border: 1px solid color(White, 0.2);
       }
+      .notification,
+      .warning,
       .error {
         position: absolute;
         background-color: color(Yellow);
@@ -325,6 +385,19 @@ export default {
         font-size: 14px;
         line-height: 1.25;
       }
+      .error {
+        background-color: color(Red);
+        color: color(White);
+      }
+      .warning {
+        background-color: color(Orange);
+      }
+      .notification {
+        background-color: color(White);
+      }
+    }
+    .input-range {
+      display: block;
     }
   }
   &__view {
@@ -335,12 +408,35 @@ export default {
     background-color: color(Black, 0.25);
     padding: grid(2) 0;
   }
+  &__nosource {
+    .input-field {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      input[type="text"] {
+        font-size: 2rem;
+        padding: 2rem;
+        border-radius: 3.5rem;
+        width: auto;
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+  }
   &__frame {
     position: relative;
     display: block;
     margin: auto;
-    width: calc(var(--frame-width, 1024px) * var(--frame-zoom, 1));
-    height: calc(var(--frame-height, 768px) * var(--frame-zoom, 1));
+    width: calc(
+      (var(--frame-width, 1024px) * var(--frame-zoom, 1)) /
+        var(--image-scaling, 1)
+    );
+    height: calc(
+      (var(--frame-height, 768px) * var(--frame-zoom, 1)) /
+        var(--image-scaling, 1)
+    );
     transition: transform 0.3s, width 0.3s, height 0.3s;
   }
   &__iframe {
