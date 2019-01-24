@@ -127,6 +127,7 @@ export default {
     display: block;
     width: 100vw;
     height: calc(var(--frame-height, 768px) + #{grid(8)});
+    min-height: 100vh;
     overflow: scroll;
     background-color: color(Black, 0.9);
     padding: grid(4) 0;
