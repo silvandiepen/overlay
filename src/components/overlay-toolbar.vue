@@ -5,11 +5,11 @@
   >
     <overlay-url></overlay-url>
     <div class="input-field">
-      <label for="size">size</label>
+      <!-- <label for="size">size</label> -->
       <select
         id="size"
-				v-model="inputSize"
-				@change="setSize"
+        v-model="inputSize"
+        @change="setSize"
       >
         <option
           v-for="(size,index) in sizes"
@@ -19,7 +19,7 @@
       </select>
     </div>
     <div class="input-field">
-      <label for="zoom">zoom</label>
+      <!-- <label for="zoom">zoom</label> -->
       <select
         id="zoom"
         v-model="current.zoom"
@@ -32,7 +32,7 @@
       </select>
     </div>
     <div class="input-field">
-      <label for="scaling">scaling</label>
+      <!-- <label for="scaling">scaling</label> -->
       <select
         id="scaling"
         v-model="current.scaling"
@@ -50,7 +50,7 @@
       class="input-field input-range"
       v-if="image.url"
     >
-      <label for="overlay-opacity">overlay opacity</label>
+      <!-- <label for="overlay-opacity">overlay opacity</label> -->
       <input
         id="overlay-opacity"
         type="range"
@@ -70,9 +70,8 @@
         type="checkbox"
         v-model="image.show"
       />
-      <label for="overlay-show">show overlay</label>
+      <label for="overlay-show">overlay</label>
     </div>
-
 
     <div
       class="input-field input-switch"
@@ -83,7 +82,7 @@
         type="checkbox"
         v-model="image.difference"
       />
-      <label for="overlay-difference">show difference</label>
+      <label for="overlay-difference">difference</label>
     </div>
 
   </div>
@@ -142,15 +141,24 @@ export default {
 
 <style lang="scss">
 @import "~henris";
+
 .toolbar {
+  --border-radius: 0;
+  --form-body: #{color(Black)};
+  --form-body-focus: #{color(Green, 0.5)};
+  --form-body-hover: #{color(Blue, 0.5)};
+  --form-accent: #{color(Blue)};
+  --form-text-color: white;
+  --form-border-width: 0;
+  --form-text-color-placeholder: #{color(White, 0.25)};
   position: fixed;
   top: 1rem;
   left: 1rem;
   z-index: 100;
   display: flex;
   width: calc(100% - 2rem);
-  background-color: color(Black);
-  padding: 1rem;
+  // background-color: color(Black);
+  // padding: 1rem;
   opacity: var(--tools-opacity, 1);
   transition: opacity 0.3s;
   &:hover {
@@ -166,30 +174,30 @@ export default {
   }
   .input-field {
     position: relative;
-    label {
-      display: block;
-      width: 100%;
-      color: color(White, 0.75);
-      padding: 0.5rem;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    select,
-    input[type="text"] {
-      color: white;
-      border: none;
-      border-radius: 0;
-      background-color: color(White, 0.1);
-      min-width: 3rem;
-      &:hover {
-        background-color: color(Green, 0.2);
-        border: none;
-      }
-      &:focus {
-        background-color: color(Blue, 0.2);
-        border: none;
-      }
-    }
+    // label {
+    //   display: block;
+    //   width: 100%;
+    //   color: color(White, 0.75);
+    //   padding: 0.5rem;
+    //   font-size: 14px;
+    //   font-weight: bold;
+    // }
+    // select,
+    // input[type="text"] {
+    //   color: white;
+    //   border: none;
+    //   border-radius: 0;
+    //   background-color: color(Black);
+    //   min-width: 3rem;
+    //   &:hover {
+    //     background-color: color(Green, 0.2);
+    //     border: none;
+    //   }
+    //   &:focus {
+    //     background-color: color(Blue, 0.2);
+    //     border: none;
+    //   }
+    // }
     .notification,
     .warning,
     .error {

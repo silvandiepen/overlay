@@ -1,6 +1,6 @@
 <template>
  <div class="input-field">
-      <label for="the-url">Url</label>
+      <!-- <label for="the-url">Url</label> -->
       <input
         id="the-url"
         v-model="inputUrl"
