@@ -1,5 +1,10 @@
 <template>
-	<textarea ref="grid" class="overlay__grid" :class="typeClass">
+  <textarea
+    ref="grid"
+    class="overlay__grid"
+    :class="typeClass"
+		v-show="grid.active"
+  >
 	</textarea>
 </template>
 
@@ -67,29 +72,46 @@ $base-bezier: ease-in-out;
     left $base-transition $base-bezier;
   height: 100%;
   background-color: transparent;
+  border: none;
   box-shadow: 0 0 0 calc(var(--grid-image-width) - var(--grid-width)) black,
     0 0 0 10px black;
   &--lines {
     opacity: 0.5;
     background-image: linear-gradient(
-      to right,
-      var(--grid-color, rgb(127, 127, 127)),
-      var(--grid-color, rgb(127, 127, 127)) calc(0% + 1px),
-      transparent calc(0% + 1px),
-      transparent
-    );
-    background-size: calc(100% / var(--grid-columns, 24));
+        to left top,
+        color(Red),
+        color(Red, 0) 50%
+      ),
+      linear-gradient(
+        to right,
+        var(--grid-color, rgb(127, 127, 127)),
+        var(--grid-color, rgb(127, 127, 127)) calc(0% + 1px),
+        transparent calc(0% + 1px),
+        transparent
+      );
+
+    background-size: 4rem 4rem, calc(100% / var(--grid-columns, 24));
+    background-repeat: no-repeat, repeat;
+    background-position: bottom right, left top;
   }
   &--odd-even {
     opacity: 0.25;
     background-image: linear-gradient(
-      to right,
-      var(--grid-color, rgb(127, 127, 127)),
-      var(--grid-color, rgb(127, 127, 127)) calc(50%),
-      transparent calc(50%),
-      transparent
-    );
-    background-size: calc(100% / ((var(--grid-columns, 24) / 2)));
+        to left top,
+        color(Red),
+        color(Red, 0) 50%
+      ),
+      linear-gradient(
+        to right,
+        var(--grid-color, rgb(127, 127, 127)),
+        var(--grid-color, rgb(127, 127, 127)) calc(50%),
+        transparent calc(50%),
+        transparent
+      );
+
+    background-size: 4rem 4rem, calc(100% / ((var(--grid-columns, 24) / 2)));
+    background-repeat: no-repeat, repeat;
+    background-position: bottom right, left top;
   }
 }
 </style>

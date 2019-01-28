@@ -4,8 +4,8 @@
     v-show="source.length > 0"
   >
     <overlay-url></overlay-url>
-    <div class="input-field">
-      <!-- <label for="size">size</label> -->
+    <div class="input-field input-select">
+      <label for="size">size</label>
       <select
         id="size"
         v-model="currentSize"
@@ -17,8 +17,8 @@
         >{{ size.title }}</option>
       </select>
     </div>
-    <div class="input-field">
-      <!-- <label for="zoom">zoom</label> -->
+    <div class="input-field input-select">
+      <label for="zoom">zoom</label>
       <select
         id="zoom"
         v-model="currentZoom"
@@ -30,8 +30,8 @@
         >{{level }}%</option>
       </select>
     </div>
-    <div class="input-field">
-      <!-- <label for="scaling">scaling</label> -->
+    <div class="input-field input-select">
+      <label for="scaling">scaling</label>
       <select
         id="scaling"
         v-model="currentScaling"
@@ -49,7 +49,7 @@
       class="input-field input-range"
       v-if="image.url"
     >
-      <!-- <label for="overlay-opacity">overlay opacity</label> -->
+      <label for="overlay-opacity">overlay opacity</label>
       <input
         id="overlay-opacity"
         type="range"
@@ -71,7 +71,7 @@
       />
       <label for="overlay-show">overlay</label>
     </div>
-   
+
     <div
       class="input-field input-switch"
       v-if="image.url"
@@ -83,8 +83,8 @@
       />
       <label for="overlay-difference">difference</label>
     </div>
-		
-						 <div
+
+    <div
       class="input-field input-switch"
       v-if="image.url"
     >
@@ -93,53 +93,54 @@
         type="checkbox"
         v-model="gridActive"
       />
-      <label for="overlay-grid">Grid</label>
+      <label for="overlay-grid">grid</label>
     </div>
-		
-		<div class="toolbar__grid" v-show="gridActive">
-				<div class="toolbar__grid-settings">
-			
-          <div class="input-field input-number">
-            <label>
-              Grid width
-            </label>
-            <input
-              type="number"
-              v-model="gridWidth"
-            />
-          </div>
-          <div class="input-field input-number">
-            <label>
-              Total columns
-            </label>
-            <input
-              type="number"
-              v-model="gridColumns"
-            />
-          </div>
-          <div class="input-field input-number">
-            <label>
-              Grid Offset
-            </label>
-            <input
-              type="number"
-              v-model="gridOffset"
-              step="10"
-            />
-          </div>
-          <div class="input-field input-select">
-            <label>
-              Grid type
-            </label>
-            <select
-              v-model="gridType"
-            >
-              <option value="lines">Lines</option>
-              <option value="odd-even">Odd/Even</option>
-            </select>
-          </div></div>
-        </div>
 
+    <div
+      class="toolbar__grid"
+      v-show="gridActive"
+    >
+      <div class="toolbar__grid-settings">
+
+        <div class="input-field input-number">
+          <label>
+            Grid width
+          </label>
+          <input
+            type="number"
+            v-model="gridWidth"
+          />
+        </div>
+        <div class="input-field input-number">
+          <label>
+            Total columns
+          </label>
+          <input
+            type="number"
+            v-model="gridColumns"
+          />
+        </div>
+        <div class="input-field input-number">
+          <label>
+            Grid Offset
+          </label>
+          <input
+            type="number"
+            v-model="gridOffset"
+            step="10"
+          />
+        </div>
+        <div class="input-field input-select">
+          <label>
+            Grid type
+          </label>
+          <select v-model="gridType">
+            <option value="lines">Lines</option>
+            <option value="odd-even">Odd/Even</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -302,13 +303,71 @@ export default {
     position: absolute;
     left: 0;
     top: 100%;
-    border-top: 1px solid red;
-    width: 100%;
+    // width: 100%;
   }
   &__grid-settings {
     display: flex;
     flex-wrap: nowrap;
     padding: 1rem 0;
+  }
+  .input-field.input-text,
+  .input-field.input-number,
+  .input-field.input-select,
+  .input-field.input-range {
+    position: relative;
+    label {
+      position: absolute;
+      top: 100%;
+      opacity: 0;
+      transform: translateY(-1rem);
+      transition: opacity $base-transition, transform $base-transition;
+      font-size: 12px;
+      padding: 0;
+    }
+    &:hover label {
+      opacity: 1;
+      transform: translateY(0rem);
+    }
+  }
+  .input-field.input-number {
+    input[type="number"] {
+      -moz-appearance: textfield;
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        background-image: linear-gradient(
+            to left bottom,
+            transparent 50%,
+            currentColor 50%
+          ),
+          linear-gradient(to right bottom, transparent 50%, currentColor 50%),
+          linear-gradient(to right top, transparent 50%, currentColor 50%),
+          linear-gradient(to left top, transparent 50%, currentColor 50%);
+        background-repeat: no-repeat;
+        background-size: 4px 4px, 4px 4px, 4px 4px, 4px 4px;
+        background-position: bottom calc(50% + 6px) right calc(50% - 2px),
+          bottom calc(50% + 6px) right calc(50% + 2px),
+          top calc(50% + 6px) left calc(50% - 2px),
+          top calc(50% + 6px) left calc(50% + 2px);
+        width: 3em;
+        opacity: 0.5; /* shows Spin Buttons per default (Chrome >= 39) */
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+      }
+      &::-webkit-inner-spin-button:hover,
+      &::-webkit-inner-spin-button:active &::-webkit-outer-spin-button:hover,
+      &::-webkit-outer-spin-button:active {
+        opacity: 1;
+      }
+      &:focus {
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+          opacity: 1;
+        }
+      }
+    }
   }
 
   .input-field + .input-field {
@@ -317,30 +376,17 @@ export default {
   }
   .input-field {
     position: relative;
-    // label {
-    //   display: block;
-    //   width: 100%;
-    //   color: color(White, 0.75);
-    //   padding: 0.5rem;
-    //   font-size: 14px;
-    //   font-weight: bold;
-    // }
-    // select,
-    // input[type="text"] {
-    //   color: white;
-    //   border: none;
-    //   border-radius: 0;
-    //   background-color: color(Black);
-    //   min-width: 3rem;
-    //   &:hover {
-    //     background-color: color(Green, 0.2);
-    //     border: none;
-    //   }
-    //   &:focus {
-    //     background-color: color(Blue, 0.2);
-    //     border: none;
-    //   }
-    // }
+    &.input-switch {
+      input[type="checkbox"] {
+        & + label {
+          color: color(Gray);
+        }
+        &:checked + label {
+          color: color(White);
+        }
+      }
+    }
+
     .notification,
     .warning,
     .error {
@@ -363,9 +409,6 @@ export default {
     .notification {
       background-color: color(White);
     }
-  }
-  .input-range {
-    display: block;
   }
 }
 </style>
