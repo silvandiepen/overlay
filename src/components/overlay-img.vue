@@ -64,11 +64,12 @@ export default {
       const img = new Image();
       img.src = this.$store.state.image.url;
       img.onload = function() {
-       _this.$store.commit("setImage", {
+       _this.$store.dispatch("setImage", {
           width: this.width,
           height: this.height
         });
-        _this.$store.commit("setCurrent", { size: [this.width, this.height] });
+				_this.$store.dispatch("setCurrent", { size: [this.width, this.height] });
+				_this.$store.dispatch("setGrid", { width: this.width, og_width: this.width })
         _this.$store.dispatch("setScaling", this);
       };
     },

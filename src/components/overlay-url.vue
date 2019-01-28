@@ -3,9 +3,7 @@
       <!-- <label for="the-url">Url</label> -->
       <input
         id="the-url"
-        v-model="inputUrl"
-        @blur="setUrl"
-        @keyup.enter="setUrl"
+        v-model.lazy="source"
         type="text"
         placeholder="Give a URL"
       />
@@ -28,31 +26,13 @@ export default {
     };
   },
   computed: {
-    url() {
-      return this.$store.state.url;
-    }
-  },
-  methods: {
-    setUrl() {
-      if (this.inputUrl.indexOf("https://") > -1) {
-        this.$store.commit("setSource", this.inputUrl + "");
-      } else if (this.inputUrl.indexOf("http://") > -1) {
-        // this.setError("https");
-        this.$store.commit(
-          "setSource",
-          this.inputUrl.replace("http://", "https://")
-        );
-      } else {
-        // this.setError("nohttps");
-        this.$store.commit("setSource", "https://" + this.inputUrl);
+    source: {
+      get() {
+        return this.$store.state.source;
+      },
+      set(value) {
+        this.$store.dispatch("setSource", value);
       }
-    }
-  },
-  watch: {
-    storeUrl: function() {
-      /* eslint-disable */
-      console.log(this.$store.state);
-      this.inputUrl = this.$store.state.url;
     }
   }
 };

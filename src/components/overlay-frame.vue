@@ -7,7 +7,7 @@
     ></iframe>
     <div
       class="overlay__image"
-			:class="{'is-difference' : image.difference}"
+      :class="{'is-difference' : image.difference}"
       v-if="image.url && image.show"
     >
       <img
@@ -15,17 +15,27 @@
         alt="the image preview"
       />
     </div>
+		<overlay-grid></overlay-grid>
+
   </div>
 </template>
 
 <script>
+const OverlayGrid = () => import("@/components/overlay-grid.vue");
 export default {
+  components: {
+    OverlayGrid
+  },
   computed: {
-    image() {
-      return this.$store.state.image;
+    image: {
+      get() {
+        return this.$store.state.image;
+      }
     },
-    source() {
-      return this.$store.state.source;
+    source: {
+      get() {
+        return this.$store.state.source;
+      }
     }
   }
 };

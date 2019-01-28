@@ -17,44 +17,52 @@
         <overlay-url></overlay-url>
 
       </div>
-
+  
       <overlay-frame v-show="source.length > 0"></overlay-frame>
       <overlay-img></overlay-img>
+      <!-- <overlay-grid v-show="source.length > 0"></overlay-grid> -->
     </div>
     <overlay-error></overlay-error>
   </div>
 </template>
 
 <script>
-import overlayToolbar from "@/components/overlay-toolbar.vue";
-import overlayUrl from "@/components/overlay-url.vue";
-import overlayFrame from "@/components/overlay-frame.vue";
-import overlayImg from "@/components/overlay-img.vue";
-import overlayError from "@/components/overlay-error.vue";
+const OverlayToolbar = () => import("@/components/overlay-toolbar.vue");
+const OverlayUrl = () => import("@/components/overlay-url.vue");
+const OverlayFrame = () => import("@/components/overlay-frame.vue");
+const OverlayImg = () => import("@/components/overlay-img.vue");
+// const OverlayGrid = () => import("@/components/overlay-grid.vue");
+const OverlayError = () => import("@/components/overlay-error.vue");
 export default {
   name: "Overlay",
   components: {
-    overlayToolbar,
-    overlayUrl,
-    overlayFrame,
-    overlayImg,
-    overlayError
+    OverlayToolbar,
+    OverlayUrl,
+    OverlayFrame,
+    OverlayImg,
+    // OverlayGrid,
+    OverlayError
   },
   computed: {
-    current() {
-      return this.$store.state.current;
+    current: {
+      get() {
+        return this.$store.state.current;
+      }
     },
-    tools() {
-      return this.$store.state.tools;
+    tools: {
+      get() {
+        return this.$store.state.tools;
+      }
     },
-    image() {
-      return this.$store.state.image;
+    image: {
+      get() {
+        return this.$store.state.image;
+      }
     },
-    source() {
-      return this.$store.state.source;
-    },
-    url() {
-      return this.$store.state.url;
+    source: {
+      get() {
+        return this.$store.state.source;
+      }
     }
   },
   methods: {
@@ -62,6 +70,8 @@ export default {
       this.$refs[ref].style.setProperty(prop, value);
     },
     setCustomProps(type = null) {
+      /* eslint-disable */
+      console.log('current: ', this.current);
       if (type == "size" || type == null) {
         this.setCustomProp(
           "--frame-width",

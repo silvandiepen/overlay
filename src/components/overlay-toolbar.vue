@@ -8,11 +8,10 @@
       <!-- <label for="size">size</label> -->
       <select
         id="size"
-        v-model="inputSize"
-        @change="setSize"
+        v-model="currentSize"
       >
         <option
-          v-for="(size,index) in sizes"
+          v-for="(size,index) in settings.sizes"
           :value="size"
           :key="index"
         >{{ size.title }}</option>
@@ -22,10 +21,10 @@
       <!-- <label for="zoom">zoom</label> -->
       <select
         id="zoom"
-        v-model="current.zoom"
+        v-model="currentZoom"
       >
         <option
-          v-for="(level,index) in zoom"
+          v-for="(level,index) in settings.zoomLevels"
           :value="level"
           :key="index"
         >{{level }}%</option>
@@ -35,7 +34,7 @@
       <!-- <label for="scaling">scaling</label> -->
       <select
         id="scaling"
-        v-model="current.scaling"
+        v-model="currentScaling"
       >
         <option
           value="1"
@@ -72,7 +71,7 @@
       />
       <label for="overlay-show">overlay</label>
     </div>
-
+   
     <div
       class="input-field input-switch"
       v-if="image.url"
@@ -84,6 +83,63 @@
       />
       <label for="overlay-difference">difference</label>
     </div>
+		
+						 <div
+      class="input-field input-switch"
+      v-if="image.url"
+    >
+      <input
+        id="overlay-grid"
+        type="checkbox"
+        v-model="gridActive"
+      />
+      <label for="overlay-grid">Grid</label>
+    </div>
+		
+		<div class="toolbar__grid" v-show="gridActive">
+				<div class="toolbar__grid-settings">
+			
+          <div class="input-field input-number">
+            <label>
+              Grid width
+            </label>
+            <input
+              type="number"
+              v-model="gridWidth"
+            />
+          </div>
+          <div class="input-field input-number">
+            <label>
+              Total columns
+            </label>
+            <input
+              type="number"
+              v-model="gridColumns"
+            />
+          </div>
+          <div class="input-field input-number">
+            <label>
+              Grid Offset
+            </label>
+            <input
+              type="number"
+              v-model="gridOffset"
+              step="10"
+            />
+          </div>
+          <div class="input-field input-select">
+            <label>
+              Grid type
+            </label>
+            <select
+              v-model="gridType"
+            >
+              <option value="lines">Lines</option>
+              <option value="odd-even">Odd/Even</option>
+            </select>
+          </div></div>
+        </div>
+
 
   </div>
 </template>
@@ -94,46 +150,107 @@ export default {
   components: {
     overlayUrl
   },
-  data() {
-    return {
-      inputUrl: null,
-      inputSize: this.$store.state.current.size
-    };
-  },
   computed: {
-    current() {
-      return this.$store.state.current;
+    toolsOpacity: {
+      get() {
+        return this.$store.state.tools.opacity;
+      },
+      set(value) {
+        this.$store.dispatch("setTools", { opacity: value });
+      }
     },
-    tools() {
-      return this.$store.state.tools;
+    source: {
+      get() {
+        return this.$store.state.source;
+      }
     },
-    image() {
-      return this.$store.state.image;
+    image: {
+      get() {
+        return this.$store.state.image;
+      }
     },
-    source() {
-      return this.$store.state.source;
+    settings: {
+      get() {
+        return this.$store.state.settings;
+      }
     },
-    url() {
-      return this.$store.state.url;
+    currentScaling: {
+      get() {
+        return this.$store.state.current.scaling;
+      },
+      set(value) {
+        this.$store.dispatch("setCurrent", {
+          scaling: value
+        });
+      }
     },
-    sizes() {
-      return this.$store.state.sizes;
+    currentZoom: {
+      get() {
+        return this.$store.state.current.zoom;
+      },
+      set(value) {
+        this.$store.dispatch("setCurrent", {
+          zoom: value
+        });
+      }
     },
-    zoom() {
-      return this.$store.state.zoom;
-    }
-  },
-  methods: {
-    setUrl() {
-      this.$store.commit("setUrl", this.inputUrl);
+    currentSize: {
+      get() {
+        return this.$store.state.current.size;
+      },
+      set(value) {
+        this.$store.dispatch("setCurrent", {
+          size: value
+        });
+      }
     },
-    setSize() {
-      this.$store.commit("setCurrent", { size: this.inputSize });
-    }
-  },
-  watch: {
-    url: function() {
-      this.inputUrl = this.$store.state.url;
+    gridActive: {
+      get() {
+        return this.$store.state.grid.active;
+      },
+      set(value) {
+        this.$store.dispatch("setGrid", { active: value });
+      }
+    },
+    gridType: {
+      get() {
+        return this.$store.state.grid.type;
+      },
+      set(value) {
+        this.$store.dispatch("setGrid", { type: value });
+      }
+    },
+    gridWidth: {
+      get() {
+        return this.$store.state.grid.width;
+      },
+      set(value) {
+        this.$store.dispatch("setGrid", { width: value });
+      }
+    },
+    gridZoom: {
+      get() {
+        return this.$store.state.grid.zoom;
+      },
+      set(value) {
+        this.$store.dispatch("setGrid", { zoom: value });
+      }
+    },
+    gridOffset: {
+      get() {
+        return this.$store.state.grid.offset;
+      },
+      set(value) {
+        this.$store.dispatch("setGrid", { offset: value });
+      }
+    },
+    gridColumns: {
+      get() {
+        return this.$store.state.grid.columns;
+      },
+      set(value) {
+        this.$store.dispatch("setGrid", { columns: value });
+      }
     }
   }
 };
@@ -149,8 +266,21 @@ export default {
   --form-body-hover: #{color(Blue, 0.5)};
   --form-accent: #{color(Blue)};
   --form-text-color: white;
+  --form-label-color: white;
   --form-border-width: 0;
   --form-text-color-placeholder: #{color(White, 0.25)};
+  --range-track-focus-background: #{color(Blue)};
+  --range-track-background: linear-gradient(
+    to right,
+    #{color(Dark)} 10%,
+    #{color(Gray) 90%}
+  );
+  --range-track-focus-background: linear-gradient(
+    to right,
+    #{color(Dark)} 10%,
+    #{color(White) 90%}
+  );
+  --range-thumb-background: #{color(White)};
   position: fixed;
   top: 1rem;
   left: 1rem;
@@ -168,6 +298,19 @@ export default {
     display: block;
     outline: none !important;
   }
+  &__grid {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    border-top: 1px solid red;
+    width: 100%;
+  }
+  &__grid-settings {
+    display: flex;
+    flex-wrap: nowrap;
+    padding: 1rem 0;
+  }
+
   .input-field + .input-field {
     margin: 0;
     margin-left: 1rem;

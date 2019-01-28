@@ -9,7 +9,7 @@
     "dev": "vue-cli-service serve"
   },
   "dependencies": {
-    "@sil/base-style": "0.0.10",
+    "@sil/base-style": "0.0.13",
     "@sil/grid": "^1.1.0",
     "@sil/markdown": "^1.0.0",
     "axios": "^0.18.0",
